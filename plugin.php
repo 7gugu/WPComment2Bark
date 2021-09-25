@@ -1,7 +1,7 @@
 <?php
 
 /*
-Plugin Name: WPComment2bark
+Plugin Name: Comment2Bark
 Plugin URI: https://7gugu.com/index.php/2021/09/21/wp%e6%8f%92%e4%bb%b6-wpcomment2bark/
 Description:  Wordpress新评论Bark通知
 Version: 1.0.0
@@ -24,36 +24,36 @@ You should have received a copy of the GNU General Public License
 along with {Plugin Name}. If not, see {License URI}.
 */
 
-function initFunction()
+function comment2bark_initFunction()
 {
   // 为 讨论 页面注册新设置
   register_setting('discussion', 'barkLink');
 
   // 在讨论读页面上注册新分节
   add_settings_section(
-    'wpcomment2bark_settings_section',
+    'comment2bark_settings_section',
     'Bark API推送配置',
-    'wpcomment2bark_settings_section_cb',
+    'comment2bark_settings_section_cb',
     'discussion'
   );
 
-  // 讨论页面中，在 wpcomment2bark_settings_section 分节上注册新设置
+  // 讨论页面中，在 comment2bark_settings_section 分节上注册新设置
   add_settings_field(
-    'wpcomment2bark_settings_field',
+    'comment2bark_settings_field',
     'Bark 推送链接',
-    'wpcomment2bark_settings_field_cb',
+    'comment2bark_settings_field_cb',
     'discussion',
-    'wpcomment2bark_settings_section'
+    'comment2bark_settings_section'
   );
 }
 
 /**
  * 注册 初始化函数 到 admin_init Action 钩子
  */
-add_action('admin_init', 'initFunction');
-add_action('wp_insert_comment', 'commentInsertedTrigger', 10, 2);
+add_action('admin_init', 'comment2bark_initFunction');
+add_action('wp_insert_comment', 'comment2bark_commentInsertedTrigger', 10, 2);
 
-function commentInsertedTrigger($comment_id, $comment_object)
+function comment2bark_commentInsertedTrigger($comment_id, $comment_object)
 {
   $setting = get_option('barkLink');
   $title = "您的博客收到了新的评论";
@@ -67,7 +67,7 @@ function commentInsertedTrigger($comment_id, $comment_object)
  * 回调函数
  */
 // 分节内容回调
-function wpcomment2bark_settings_section_cb()
+function comment2bark_settings_section_cb()
 {
   echo '
     <p>使用说明: 保存推送服务器的推送链接后, 每当有新的访客发送评论时都会推送到指定的Bark客户端</p>
@@ -76,7 +76,7 @@ function wpcomment2bark_settings_section_cb()
 }
 
 // 字段内容回调
-function wpcomment2bark_settings_field_cb()
+function comment2bark_settings_field_cb()
 {
   // 获取我们使用 register_setting() 注册的字段的值
   $setting = get_option('barkLink');
