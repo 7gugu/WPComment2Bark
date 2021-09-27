@@ -1,7 +1,7 @@
 <?php
 
 /*
-Plugin Name: Comment2Bark
+Plugin Name: WPComment2Bark
 Plugin URI: https://7gugu.com/index.php/2021/09/21/wp%e6%8f%92%e4%bb%b6-wpcomment2bark/
 Description:  Wordpress新评论Bark通知
 Version: 1.0.0
