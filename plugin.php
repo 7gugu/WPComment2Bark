@@ -4,7 +4,7 @@
 Plugin Name: WPComment2Bark
 Plugin URI: https://7gugu.com/index.php/2021/09/21/wp%e6%8f%92%e4%bb%b6-wpcomment2bark/
 Description:  Wordpress新评论Bark通知
-Version: 1.0.0
+Version: 1.0.1
 Author: 7gugu
 Author URI: https://www.7gugu.com/
 License: GPL2
@@ -59,7 +59,16 @@ function comment2bark_commentInsertedTrigger($comment_id, $comment_object)
   $title = "您的博客收到了新的评论";
   $content = $comment_object->comment_author . ": " . $comment_object->comment_content;
   if (isset($setting)) {
-    $response = wp_remote_get($setting . $title . "/" . $content);
+    $url = $setting . $title . "/" . $content;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); 
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    var_dump($output);
+    exit();
   }
 }
 
