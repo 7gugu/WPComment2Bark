@@ -52,15 +52,15 @@ function comment2bark_initFunction()
  */
 add_action('admin_init', 'comment2bark_initFunction');
 
-function check_new_comment($comment_id, $comment_approved)
+function check_new_comment($approved, $commentdata)
 {
   // 检查评论状态是否为“待审批”
-  if ($comment_approved == 0) {
+  if ($approved == 0) {
     // 获取最新插入的评论对象
-    $comment = get_comment($comment_id);
+    $comment = get_comment($commentdata['comment_ID']);
     // 检查评论是否已经通过垃圾过滤
     if ($comment->comment_approved == 1) {
-      // 这是最新的可以审批的评论
+      // 返回“已批准”状态
       $setting = get_option('barkLink');
       $title = "您的博客收到了新的评论";
       $content = $comment_object->comment_author . ": " . $comment_object->comment_content;
@@ -71,13 +71,15 @@ function check_new_comment($comment_id, $comment_approved)
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
+        curl_exec($ch);
         curl_close($ch);
       }
     }
+    // 返回原始状态
+    return $approved;
   }
 }
-add_action('pre_comment_approved', 'check_new_comment', 10, 2);
+add_filter('pre_comment_approved', 'check_new_comment', 10, 2);
 
 /**
  * 回调函数
