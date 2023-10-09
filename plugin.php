@@ -4,7 +4,7 @@
 Plugin Name: WPComment2Bark
 Plugin URI: https://7gugu.com/index.php/2021/09/21/wp%e6%8f%92%e4%bb%b6-wpcomment2bark/
 Description:  Wordpress新评论Bark通知
-Version: 1.0.1
+Version: 1.1.0
 Author: 7gugu
 Author URI: https://www.7gugu.com/
 License: GPL2
@@ -51,24 +51,33 @@ function comment2bark_initFunction()
  * 注册 初始化函数 到 admin_init Action 钩子
  */
 add_action('admin_init', 'comment2bark_initFunction');
-add_action('wp_insert_comment', 'comment2bark_commentInsertedTrigger', 10, 2);
 
-function comment2bark_commentInsertedTrigger($comment_id, $comment_object)
+function check_new_comment($comment_id, $comment_approved)
 {
-  $setting = get_option('barkLink');
-  $title = "您的博客收到了新的评论";
-  $content = $comment_object->comment_author . ": " . $comment_object->comment_content;
-  if (isset($setting)) {
-    $url = $setting . $title . "/" . $content;
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); 
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    $output = curl_exec($ch);
-    curl_close($ch);
+  // 检查评论状态是否为“待审批”
+  if ($comment_approved == 0) {
+    // 获取最新插入的评论对象
+    $comment = get_comment($comment_id);
+    // 检查评论是否已经通过垃圾过滤
+    if ($comment->comment_approved == 1) {
+      // 这是最新的可以审批的评论
+      $setting = get_option('barkLink');
+      $title = "您的博客收到了新的评论";
+      $content = $comment_object->comment_author . ": " . $comment_object->comment_content;
+      if (isset($setting)) {
+        $url = $setting . $title . "/" . $content;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+      }
+    }
   }
 }
+add_action('pre_comment_approved', 'check_new_comment', 10, 2);
 
 /**
  * 回调函数
